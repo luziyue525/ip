@@ -4,6 +4,7 @@ public class Duke {
     public static void main(String[] args) {
         System.out.println("Zsiggy here. Make it quick.");
         System.out.println("What mess do you need me to sort out today?");
+
         Scanner scanner = new Scanner(System.in);
 
         Task[] task = new Task[100];
@@ -85,6 +86,44 @@ public class Duke {
                                 "Whatever, it's unmarked now:"
                         );
                         System.out.println(task[index]);
+
+                    } catch (NumberFormatException e) {
+                        throw new ZsiggyException(
+                                "Give me a proper task number."
+                        );
+                    }
+
+                } else if (input.startsWith("delete ")) {
+                    try {
+                        int taskNumber =
+                                Integer.parseInt(
+                                        input.substring(7)
+                                );
+
+                        int index = taskNumber - 1;
+
+                        if (index < 0 || index >= taskCount) {
+                            throw new ZsiggyException(
+                                    "That task doesn't exist."
+                            );
+                        }
+
+                        Task deletedTask = task[index];
+
+                        for (int i = index; i < taskCount - 1; i++) {
+                            task[i] = task[i + 1];
+                        }
+
+                        taskCount--;
+                        task[taskCount] = null;
+
+                        System.out.println(
+                                "Finally, one less thing cluttering your life:"
+                        );
+                        System.out.println(deletedTask);
+                        System.out.println(
+                                "Now you've got " + taskCount + " task(s) left."
+                        );
 
                     } catch (NumberFormatException e) {
                         throw new ZsiggyException(
@@ -224,5 +263,11 @@ public class Duke {
                 );
             }
         }
+
+        scanner.close();
+
+        System.out.println(
+                "Hmph. Bye. Go drink your green milk tea."
+        );
     }
 }
