@@ -1,10 +1,7 @@
 public class Duke {
     public static void main(String[] args) {
-        String banner = " ____        _        \n"
-                + "|  _ \\ _   _| | _____ \n"
-                + "| | | | | | | |/ / _ \\\n"
-                + "| |_| | |_| |   <  __/\n"
-                + "|____/ \\__,_|_|\\_\\___|\n";
-        System.out.println(banner);
+        System.out.println("Zsiggy here. Make it quick.");
+        System.out.println("What mess do you need me to sort out today?");
+        System.out.println("Hmph. Bye. Go drink your green milk tea.");
     }
 }
