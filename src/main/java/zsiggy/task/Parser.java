@@ -1,3 +1,5 @@
+package zsiggy.task;
+
 public class Parser {
 
     public static int parseTaskNumber(
