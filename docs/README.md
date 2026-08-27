@@ -1,4 +1,4 @@
-# zsiggy.task.Duke User Guide
+# zsiggy.Duke User Guide
 
 // Update the title above to match the actual product name
 

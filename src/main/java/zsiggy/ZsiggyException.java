@@ -1,4 +1,4 @@
-package zsiggy.task;
+package zsiggy;
 
 public class ZsiggyException extends Exception {
     public ZsiggyException(String message) {

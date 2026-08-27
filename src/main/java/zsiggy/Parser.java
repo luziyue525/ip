@@ -1,4 +1,4 @@
-package zsiggy.task;
+package zsiggy;
 
 public class Parser {
 

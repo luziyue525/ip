@@ -1,4 +1,9 @@
-package zsiggy.task;
+package zsiggy;
+
+import zsiggy.task.Deadline;
+import zsiggy.task.Event;
+import zsiggy.task.Task;
+import zsiggy.task.Todo;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
