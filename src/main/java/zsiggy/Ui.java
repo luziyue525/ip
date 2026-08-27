@@ -1,4 +1,6 @@
-package zsiggy.task;
+package zsiggy;
+
+import zsiggy.task.Task;
 
 import java.util.Scanner;
 
