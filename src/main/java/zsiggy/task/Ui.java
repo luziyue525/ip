@@ -1,3 +1,5 @@
+package zsiggy.task;
+
 import java.util.Scanner;
 
 public class Ui {
