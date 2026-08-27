@@ -1,0 +1,3 @@
+T | 0 | read book
+D | 1 | submit assignment | Friday
+E | 0 | tutorial | 2pm | 4pm

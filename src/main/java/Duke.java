@@ -1,14 +1,146 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Duke {
+
+    public static void saveTasks(Task[] task, int taskCount, File dataFile) {
+        try {
+            FileWriter writer = new FileWriter(dataFile);
+
+            for (int i = 0; i < taskCount; i++) {
+                Task currentTask = task[i];
+
+                String done = currentTask.isDone() ? "1" : "0";
+
+                if (currentTask instanceof Todo) {
+                    writer.write(
+                            "T | " + done + " | "
+                                    + currentTask.getDescription()
+                                    + System.lineSeparator()
+                    );
+
+                } else if (currentTask instanceof Deadline) {
+                    Deadline deadline = (Deadline) currentTask;
+
+                    writer.write(
+                            "D | " + done + " | "
+                                    + deadline.getDescription()
+                                    + " | "
+                                    + deadline.getDeadline()
+                                    + System.lineSeparator()
+                    );
+
+                } else if (currentTask instanceof Event) {
+                    Event event = (Event) currentTask;
+
+                    writer.write(
+                            "E | " + done + " | "
+                                    + event.getDescription()
+                                    + " | "
+                                    + event.getFromDate()
+                                    + " | "
+                                    + event.getToDate()
+                                    + System.lineSeparator()
+                    );
+                }
+            }
+
+            writer.close();
+
+        } catch (IOException e) {
+            System.out.println(
+                    "Oi. Couldn't save your tasks."
+            );
+        }
+    }
+
     public static void main(String[] args) {
         System.out.println("Zsiggy here. Make it quick.");
         System.out.println("What mess do you need me to sort out today?");
 
         Scanner scanner = new Scanner(System.in);
 
+        File dataFolder = new File("data");
+        File dataFile = new File("data/tasks.txt");
+
+        try {
+            if (!dataFolder.exists()) {
+                dataFolder.mkdir();
+            }
+
+            if (!dataFile.exists()) {
+                dataFile.createNewFile();
+            }
+        } catch (IOException e) {
+            System.out.println("Oi. Couldn't create the save file.");
+        }
+
         Task[] task = new Task[100];
         int taskCount = 0;
+
+        try {
+            Scanner fileScanner = new Scanner(dataFile);
+
+            while (fileScanner.hasNextLine()) {
+                String line = fileScanner.nextLine();
+
+                if (line.isBlank()) {
+                    continue;
+                }
+
+                String[] parts = line.split(" \\| ");
+
+                String type = parts[0];
+                boolean isDone = parts[1].equals("1");
+
+                Task loadedTask;
+
+                if (type.equals("T")) {
+                    String description = parts[2];
+                    loadedTask = new Todo(description);
+
+                } else if (type.equals("D")) {
+                    String description = parts[2];
+                    String deadline = parts[3];
+
+                    loadedTask = new Deadline(
+                            description,
+                            deadline
+                    );
+
+                } else if (type.equals("E")) {
+                    String description = parts[2];
+                    String fromDate = parts[3];
+                    String toDate = parts[4];
+
+                    loadedTask = new Event(
+                            description,
+                            fromDate,
+                            toDate
+                    );
+
+                } else {
+                    continue;
+                }
+
+                if (isDone) {
+                    loadedTask.mark();
+                }
+
+                task[taskCount] = loadedTask;
+                taskCount++;
+            }
+
+            fileScanner.close();
+
+        } catch (FileNotFoundException e) {
+            System.out.println(
+                    "Oi. Couldn't load your saved tasks."
+            );
+        }
 
         while (true) {
             String input = scanner.nextLine();
@@ -50,6 +182,8 @@ public class Duke {
 
                         task[index].mark();
 
+                        saveTasks(task, taskCount, dataFile);
+
                         System.out.println(
                                 "Wait, you actually finished something? Wonders never cease."
                         );
@@ -78,6 +212,8 @@ public class Duke {
                         }
 
                         task[index].unmark();
+
+                        saveTasks(task, taskCount, dataFile);
 
                         System.out.println(
                                 "Caught you faking it, huh?"
@@ -117,6 +253,8 @@ public class Duke {
                         taskCount--;
                         task[taskCount] = null;
 
+                        saveTasks(task, taskCount, dataFile);
+
                         System.out.println(
                                 "Finally, one less thing cluttering your life:"
                         );
@@ -149,6 +287,8 @@ public class Duke {
                     Task t = new Todo(description);
                     task[taskCount] = t;
                     taskCount++;
+
+                    saveTasks(task, taskCount, dataFile);
 
                     System.out.println(
                             "Got it. Added to your never-ending pile:"
@@ -191,6 +331,8 @@ public class Duke {
 
                     task[taskCount] = t;
                     taskCount++;
+
+                    saveTasks(task, taskCount, dataFile);
 
                     System.out.println(
                             "Tick-tock. Added this ticking time bomb:"
@@ -245,6 +387,8 @@ public class Duke {
 
                     task[taskCount] = t;
                     taskCount++;
+
+                    saveTasks(task, taskCount, dataFile);
 
                     System.out.println(
                             "Locked it into your schedule:"
