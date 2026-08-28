@@ -8,17 +8,31 @@ import zsiggy.task.Todo;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+/**
+ * Main class of the Zsiggy chatbot.
+ *
+ * Coordinates user interaction, task management, command handling,
+ * and persistent storage.
+ */
 public class Duke {
     private final Ui ui;
     private final Storage storage;
     private TaskList tasks;
 
+    /**
+     * Creates a new Duke instance with its user interface,
+     * storage system, and task list.
+     */
     public Duke() {
         this.ui = new Ui();
         this.storage = new Storage("data/tasks.txt");
         this.tasks = new TaskList();
     }
 
+    /**
+     * Starts Zsiggy and continuously processes user commands
+     * until the user exits the application.
+     */
     public void run() {
         ui.showWelcome();
 
@@ -262,6 +276,9 @@ public class Duke {
         ui.showExit();
     }
 
+    /**
+     * Saves the current task list to persistent storage.
+     */
     private void saveTasks() {
         try {
             storage.save(tasks);
@@ -273,6 +290,11 @@ public class Duke {
         }
     }
 
+    /**
+     * Entry point of the application.
+     *
+     * @param args command-line arguments
+     */
     public static void main(String[] args) {
         new Duke().run();
     }
