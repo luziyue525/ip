@@ -158,4 +158,16 @@ public class Ui {
     public void close() {
         scanner.close();
     }
+
+    public void showFoundTasks(Task[] tasks) {
+        System.out.println(
+                "Fine. Here are the matching tasks:"
+        );
+
+        for (int i = 0; i < tasks.length; i++) {
+            System.out.println(
+                    (i + 1) + ". " + tasks[i]
+            );
+        }
+    }
 }

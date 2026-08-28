@@ -101,4 +101,24 @@ public class TaskList {
     public boolean isValidIndex(int index) {
         return index >= 0 && index < taskCount;
     }
+
+    public Task[] find(String keyword) {
+        Task[] matches = new Task[100];
+        int matchCount = 0;
+
+        for (int i = 0; i < taskCount; i++) {
+            if (tasks[i].getDescription().contains(keyword)) {
+                matches[matchCount] = tasks[i];
+                matchCount++;
+            }
+        }
+
+        Task[] result = new Task[matchCount];
+
+        for (int i = 0; i < matchCount; i++) {
+            result[i] = matches[i];
+        }
+
+        return result;
+    }
 }
