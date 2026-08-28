@@ -11,15 +11,28 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
+/**
+ * Handles loading and saving tasks to persistent storage.
+ */
 public class Storage {
     private final File dataFolder;
     private final File dataFile;
 
+    /**
+     * Creates a Storage object using the specified file path.
+     *
+     * @param filePath the path of the file used to store tasks
+     */
     public Storage(String filePath) {
         this.dataFolder = new File("data");
         this.dataFile = new File(filePath);
     }
 
+    /**
+     * Creates the data folder and task data file if they do not exist.
+     *
+     * @throws IOException if the data folder or file cannot be created
+     */
     public void createDataFile() throws IOException {
         if (!dataFolder.exists()) {
             dataFolder.mkdir();
@@ -30,6 +43,12 @@ public class Storage {
         }
     }
 
+    /**
+     * Loads tasks from the data file.
+     *
+     * @return a TaskList containing the tasks stored in the file
+     * @throws FileNotFoundException if the data file cannot be found
+     */
     public TaskList load() throws FileNotFoundException {
         TaskList tasks = new TaskList();
 
@@ -90,6 +109,12 @@ public class Storage {
         return tasks;
     }
 
+    /**
+     * Saves all tasks in the given task list to the data file.
+     *
+     * @param tasks the task list to save
+     * @throws IOException if the task data cannot be written
+     */
     public void save(TaskList tasks) throws IOException {
         FileWriter writer = new FileWriter(dataFile);
 
