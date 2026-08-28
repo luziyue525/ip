@@ -1,12 +1,12 @@
 package zsiggy;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 import zsiggy.task.Deadline;
 import zsiggy.task.Event;
 import zsiggy.task.Task;
 import zsiggy.task.Todo;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
 
 public class Duke {
     private final Ui ui;
@@ -25,16 +25,10 @@ public class Duke {
         try {
             storage.createDataFile();
             tasks = storage.load();
-
         } catch (FileNotFoundException e) {
-            ui.showError(
-                    "Couldn't load your saved tasks."
-            );
-
+            ui.showError("Couldn't load your saved tasks.");
         } catch (IOException e) {
-            ui.showError(
-                    "Couldn't create the save file."
-            );
+            ui.showError("Couldn't create the save file.");
         }
 
         while (true) {
@@ -50,98 +44,56 @@ public class Duke {
                     break;
 
                 } else if (input.equals("list")) {
-                    ui.showTaskList(
-                            tasks.getTasks(),
-                            tasks.getTaskCount()
-                    );
+                    ui.showTaskList(tasks.getTasks(), tasks.getTaskCount());
 
                 } else if (input.startsWith("mark ")) {
-                    int index =
-                            Parser.parseTaskNumber(
-                                    input,
-                                    5
-                            );
+                    int index = Parser.parseTaskNumber(input, 5);
 
                     if (!tasks.isValidIndex(index)) {
-                        throw new ZsiggyException(
-                                "That task doesn't exist."
-                        );
+                        throw new ZsiggyException("That task doesn't exist.");
                     }
 
                     tasks.mark(index);
-
                     saveTasks();
-
-                    ui.showMarkedTask(
-                            tasks.get(index)
-                    );
+                    ui.showMarkedTask(tasks.get(index));
 
                 } else if (input.startsWith("unmark ")) {
-                    int index =
-                            Parser.parseTaskNumber(
-                                    input,
-                                    7
-                            );
+                    int index = Parser.parseTaskNumber(input, 7);
 
                     if (!tasks.isValidIndex(index)) {
-                        throw new ZsiggyException(
-                                "That task doesn't exist."
-                        );
+                        throw new ZsiggyException("That task doesn't exist.");
                     }
 
                     tasks.unmark(index);
-
                     saveTasks();
-
-                    ui.showUnmarkedTask(
-                            tasks.get(index)
-                    );
+                    ui.showUnmarkedTask(tasks.get(index));
 
                 } else if (input.startsWith("delete ")) {
-                    int index =
-                            Parser.parseTaskNumber(
-                                    input,
-                                    7
-                            );
+                    int index = Parser.parseTaskNumber(input, 7);
 
                     if (!tasks.isValidIndex(index)) {
-                        throw new ZsiggyException(
-                                "That task doesn't exist."
-                        );
+                        throw new ZsiggyException("That task doesn't exist.");
                     }
 
-                    Task deletedTask =
-                            tasks.delete(index);
+                    Task deletedTask = tasks.delete(index);
 
                     saveTasks();
-
-                    ui.showDeletedTask(
-                            deletedTask,
-                            tasks.getTaskCount()
-                    );
+                    ui.showDeletedTask(deletedTask, tasks.getTaskCount());
 
                 } else if (input.equals("todo")) {
-                    throw new ZsiggyException(
-                            "A todo needs a description."
-                    );
+                    throw new ZsiggyException("A todo needs a description.");
 
                 } else if (input.startsWith("todo ")) {
-                    String description =
-                            input.substring(5);
+                    String description = input.substring(5);
 
                     if (description.isBlank()) {
-                        throw new ZsiggyException(
-                                "A todo needs a description."
-                        );
+                        throw new ZsiggyException("A todo needs a description.");
                     }
 
-                    Task task =
-                            new Todo(description);
+                    Task task = new Todo(description);
 
                     tasks.add(task);
-
                     saveTasks();
-
                     ui.showTodoAdded(task);
 
                 } else if (input.equals("deadline")) {
@@ -150,8 +102,7 @@ public class Duke {
                     );
 
                 } else if (input.startsWith("deadline ")) {
-                    String content =
-                            input.substring(9);
+                    String content = input.substring(9);
 
                     if (!content.contains(" /by ")) {
                         throw new ZsiggyException(
@@ -159,32 +110,21 @@ public class Duke {
                         );
                     }
 
-                    String[] parts =
-                            content.split(" /by ", 2);
+                    String[] parts = content.split(" /by ", 2);
 
-                    String description =
-                            parts[0];
+                    String description = parts[0];
+                    String deadline = parts[1];
 
-                    String deadline =
-                            parts[1];
-
-                    if (description.isBlank()
-                            || deadline.isBlank()) {
+                    if (description.isBlank() || deadline.isBlank()) {
                         throw new ZsiggyException(
                                 "A deadline needs both a task and a deadline."
                         );
                     }
 
-                    Task task =
-                            new Deadline(
-                                    description,
-                                    deadline
-                            );
+                    Task task = new Deadline(description, deadline);
 
                     tasks.add(task);
-
                     saveTasks();
-
                     ui.showDeadlineAdded(task);
 
                 } else if (input.equals("event")) {
@@ -193,56 +133,31 @@ public class Duke {
                     );
 
                 } else if (input.startsWith("event ")) {
-                    String content =
-                            input.substring(6);
+                    String content = input.substring(6);
 
-                    if (!content.contains(" /from ")
-                            || !content.contains(" /to ")) {
+                    if (!content.contains(" /from ") || !content.contains(" /to ")) {
                         throw new ZsiggyException(
                                 "Use: event DESCRIPTION /from START /to END"
                         );
                     }
 
-                    String[] fromParts =
-                            content.split(
-                                    " /from ",
-                                    2
-                            );
+                    String[] fromParts = content.split(" /from ", 2);
+                    String description = fromParts[0];
 
-                    String description =
-                            fromParts[0];
+                    String[] timeParts = fromParts[1].split(" /to ", 2);
+                    String fromDate = timeParts[0];
+                    String toDate = timeParts[1];
 
-                    String[] timeParts =
-                            fromParts[1].split(
-                                    " /to ",
-                                    2
-                            );
-
-                    String fromDate =
-                            timeParts[0];
-
-                    String toDate =
-                            timeParts[1];
-
-                    if (description.isBlank()
-                            || fromDate.isBlank()
-                            || toDate.isBlank()) {
+                    if (description.isBlank() || fromDate.isBlank() || toDate.isBlank()) {
                         throw new ZsiggyException(
                                 "An event needs a description, start, and end."
                         );
                     }
 
-                    Task task =
-                            new Event(
-                                    description,
-                                    fromDate,
-                                    toDate
-                            );
+                    Task task = new Event(description, fromDate, toDate);
 
                     tasks.add(task);
-
                     saveTasks();
-
                     ui.showEventAdded(task);
 
                 } else {
@@ -252,9 +167,7 @@ public class Duke {
                 }
 
             } catch (ZsiggyException e) {
-                ui.showError(
-                        e.getMessage()
-                );
+                ui.showError(e.getMessage());
             }
         }
 
@@ -265,11 +178,8 @@ public class Duke {
     private void saveTasks() {
         try {
             storage.save(tasks);
-
         } catch (IOException e) {
-            ui.showError(
-                    "Couldn't save your tasks."
-            );
+            ui.showError("Couldn't save your tasks.");
         }
     }
 
