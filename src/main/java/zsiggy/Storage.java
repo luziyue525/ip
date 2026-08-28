@@ -1,10 +1,5 @@
 package zsiggy;
 
-import zsiggy.task.Deadline;
-import zsiggy.task.Event;
-import zsiggy.task.Task;
-import zsiggy.task.Todo;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -14,6 +9,13 @@ import java.util.Scanner;
 /**
  * Handles loading and saving tasks to persistent storage.
  */
+
+import zsiggy.task.Deadline;
+import zsiggy.task.Event;
+import zsiggy.task.Task;
+import zsiggy.task.Todo;
+
+
 public class Storage {
     private final File dataFolder;
     private final File dataFile;
@@ -51,7 +53,6 @@ public class Storage {
      */
     public TaskList load() throws FileNotFoundException {
         TaskList tasks = new TaskList();
-
         Scanner fileScanner = new Scanner(dataFile);
 
         while (fileScanner.hasNextLine()) {
@@ -70,28 +71,20 @@ public class Storage {
 
             if (type.equals("T")) {
                 String description = parts[2];
-
                 loadedTask = new Todo(description);
 
             } else if (type.equals("D")) {
                 String description = parts[2];
                 String deadline = parts[3];
 
-                loadedTask = new Deadline(
-                        description,
-                        deadline
-                );
+                loadedTask = new Deadline(description, deadline);
 
             } else if (type.equals("E")) {
                 String description = parts[2];
                 String fromDate = parts[3];
                 String toDate = parts[4];
 
-                loadedTask = new Event(
-                        description,
-                        fromDate,
-                        toDate
-                );
+                loadedTask = new Event(description, fromDate, toDate);
 
             } else {
                 continue;
@@ -105,7 +98,6 @@ public class Storage {
         }
 
         fileScanner.close();
-
         return tasks;
     }
 
@@ -120,9 +112,7 @@ public class Storage {
 
         for (int i = 0; i < tasks.getTaskCount(); i++) {
             Task currentTask = tasks.get(i);
-
-            String done =
-                    currentTask.isDone() ? "1" : "0";
+            String done = currentTask.isDone() ? "1" : "0";
 
             if (currentTask instanceof Todo) {
                 writer.write(
@@ -132,8 +122,7 @@ public class Storage {
                 );
 
             } else if (currentTask instanceof Deadline) {
-                Deadline deadline =
-                        (Deadline) currentTask;
+                Deadline deadline = (Deadline) currentTask;
 
                 writer.write(
                         "D | " + done + " | "
@@ -144,8 +133,7 @@ public class Storage {
                 );
 
             } else if (currentTask instanceof Event) {
-                Event event =
-                        (Event) currentTask;
+                Event event = (Event) currentTask;
 
                 writer.write(
                         "E | " + done + " | "
