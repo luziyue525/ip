@@ -55,6 +55,21 @@ public class Duke {
                             tasks.getTaskCount()
                     );
 
+                } else if (input.equals("find")) {
+                    throw new ZsiggyException(
+                            "A find command needs a keyword."
+                    );
+                } else if (input.startsWith("find ")) {
+                    String keyword = input.substring(5);
+
+                    if (keyword.isBlank()) {
+                        throw new ZsiggyException(
+                                "A find command needs a keyword."
+                        );
+                    }
+
+                    Task[] matches = tasks.find(keyword);
+                    ui.showFoundTasks(matches);
                 } else if (input.startsWith("mark ")) {
                     int index =
                             Parser.parseTaskNumber(
