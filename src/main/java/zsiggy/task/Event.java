@@ -6,7 +6,6 @@ import java.time.format.DateTimeFormatter;
 /**
  * Represents an event with a start date and end date.
  */
-
 public class Event extends Task {
     private final LocalDate fromDate;
     private final LocalDate toDate;
@@ -14,11 +13,10 @@ public class Event extends Task {
     /**
      * Creates an event.
      *
-     * @param description the event description
-     * @param fromDate the start date in yyyy-MM-dd format
-     * @param toDate the end date in yyyy-MM-dd format
+     * @param description The event description.
+     * @param fromDate The start date in yyyy-MM-dd format.
+     * @param toDate The end date in yyyy-MM-dd format.
      */
-
     public Event(String description, String fromDate, String toDate) {
         super(description);
 
@@ -34,11 +32,10 @@ public class Event extends Task {
     }
 
     /**
-     * Returns the event in storage format.
+     * Returns the event start date in storage format.
      *
-     * @return the event dates-from  in yyyy-MM-dd format
+     * @return The event start date in yyyy-MM-dd format.
      */
-
     public String getFromDate() {
         return this.fromDate.format(
                 DateTimeFormatter.ofPattern("yyyy-MM-dd")
@@ -46,11 +43,10 @@ public class Event extends Task {
     }
 
     /**
-     * Returns the event in storage format.
+     * Returns the event end date in storage format.
      *
-     * @return the event dates-to  in yyyy-MM-dd format
+     * @return The event end date in yyyy-MM-dd format.
      */
-
     public String getToDate() {
         return this.toDate.format(
                 DateTimeFormatter.ofPattern("yyyy-MM-dd")
@@ -60,9 +56,8 @@ public class Event extends Task {
     /**
      * Returns the formatted textual representation of the event.
      *
-     * @return the formatted event task
+     * @return The formatted event task.
      */
-
     @Override
     public String toString() {
         return "[E]" + super.toString()
