@@ -102,6 +102,12 @@ public class TaskList {
         return index >= 0 && index < taskCount;
     }
 
+    /**
+     * Finds tasks whose descriptions contain the given keyword.
+     *
+     * @param keyword The keyword to search for.
+     * @return An array containing the matching tasks.
+     */
     public Task[] find(String keyword) {
         Task[] matches = new Task[100];
         int matchCount = 0;
