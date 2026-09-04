@@ -2,6 +2,7 @@ package zsiggy.task;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 /**
  * Represents an event with a start date and end date.
@@ -22,12 +23,12 @@ public class Event extends Task {
 
         this.fromDate = LocalDate.parse(
                 fromDate,
-                DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH)
         );
 
         this.toDate = LocalDate.parse(
                 toDate,
-                DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH)
         );
     }
 
@@ -38,7 +39,7 @@ public class Event extends Task {
      */
     public String getFromDate() {
         return this.fromDate.format(
-                DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH)
         );
     }
 
@@ -49,7 +50,7 @@ public class Event extends Task {
      */
     public String getToDate() {
         return this.toDate.format(
-                DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH)
         );
     }
 
@@ -63,11 +64,11 @@ public class Event extends Task {
         return "[E]" + super.toString()
                 + " (from: "
                 + this.fromDate.format(
-                DateTimeFormatter.ofPattern("MMM d yyyy")
+                DateTimeFormatter.ofPattern("MMM d yyyy", Locale.ENGLISH)
         )
                 + " to: "
                 + this.toDate.format(
-                DateTimeFormatter.ofPattern("MMM d yyyy")
+                DateTimeFormatter.ofPattern("MMM d yyyy", Locale.ENGLISH)
         )
                 + ")";
     }

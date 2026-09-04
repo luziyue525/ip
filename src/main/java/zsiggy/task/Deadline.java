@@ -2,6 +2,7 @@ package zsiggy.task;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 /**
  * Represents a task that must be completed by a specific date.
@@ -20,7 +21,7 @@ public class Deadline extends Task {
 
         this.deadline = LocalDate.parse(
                 deadline,
-                DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH)
         );
     }
 
@@ -31,7 +32,7 @@ public class Deadline extends Task {
      */
     public String getDeadline() {
         return this.deadline.format(
-                DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH)
         );
     }
 
@@ -45,7 +46,7 @@ public class Deadline extends Task {
         return "[D]" + super.toString()
                 + " (by: "
                 + this.deadline.format(
-                DateTimeFormatter.ofPattern("MMM d yyyy")
+                DateTimeFormatter.ofPattern("MMM d yyyy", Locale.ENGLISH)
         )
                 + ")";
     }
