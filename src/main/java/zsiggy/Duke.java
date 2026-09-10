@@ -110,11 +110,17 @@ public class Duke {
                     saveTasks();
                     ui.showDeletedTask(deletedTask, tasks.getTaskCount());
 
-                } else if (input.equals("todo")) {
+                } else if (input.equals("todo") || input.equals("t")) {
                     throw new ZsiggyException("A todo needs a description.");
 
-                } else if (input.startsWith("todo ")) {
-                    String description = input.substring(5);
+                } else if (input.startsWith("todo ") || input.startsWith("t ")) {
+                    String description;
+
+                    if (input.startsWith("t ")) {
+                        description = input.substring(2);
+                    } else {
+                        description = input.substring(5);
+                    }
 
                     if (description.isBlank()) {
                         throw new ZsiggyException("A todo needs a description.");
@@ -314,13 +320,19 @@ public class Duke {
                         + tasks.getTaskCount()
                         + " task(s) left.";
 
-            } else if (input.equals("todo")) {
+            } else if (input.equals("todo") || input.equals("t")) {
                 throw new ZsiggyException(
                         "A todo needs a description."
                 );
 
-            } else if (input.startsWith("todo ")) {
-                String description = input.substring(5);
+            } else if (input.startsWith("todo ") || input.startsWith("t ")) {
+                String description;
+
+                if (input.startsWith("t ")) {
+                    description = input.substring(2);
+                } else {
+                    description = input.substring(5);
+                }
 
                 if (description.isBlank()) {
                     throw new ZsiggyException(
