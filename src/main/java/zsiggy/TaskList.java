@@ -23,6 +23,9 @@ public class TaskList {
      * @param task the task to add
      */
     public void add(Task task) {
+        assert task != null : "Task to add should not be null";
+        assert taskCount < tasks.length : "Task list should not be full";
+
         tasks[taskCount] = task;
         taskCount++;
     }
@@ -34,6 +37,8 @@ public class TaskList {
      * @return the task that was deleted
      */
     public Task delete(int index) {
+        assert isValidIndex(index) : "Index to delete should be valid";
+
         Task deletedTask = tasks[index];
 
         for (int i = index; i < taskCount - 1; i++) {
@@ -52,6 +57,8 @@ public class TaskList {
      * @param index the zero-based index of the task
      */
     public void mark(int index) {
+        assert isValidIndex(index) : "Index to mark should be valid";
+
         tasks[index].mark();
     }
 
@@ -61,6 +68,8 @@ public class TaskList {
      * @param index the zero-based index of the task
      */
     public void unmark(int index) {
+        assert isValidIndex(index) : "Index to unmark should be valid";
+
         tasks[index].unmark();
     }
 
@@ -71,6 +80,8 @@ public class TaskList {
      * @return the task at the given index
      */
     public Task get(int index) {
+        assert isValidIndex(index) : "Index to get should be valid";
+
         return tasks[index];
     }
 
