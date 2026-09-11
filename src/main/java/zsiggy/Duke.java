@@ -77,33 +77,21 @@ public class Duke {
                     Task[] matches = tasks.find(keyword);
                     ui.showFoundTasks(matches);
                 } else if (input.startsWith("mark ")) {
-                    int index = Parser.parseTaskNumber(input, 5);
-
-                    if (!tasks.isValidIndex(index)) {
-                        throw new ZsiggyException("That task doesn't exist.");
-                    }
+                    int index = parseExistingTaskIndex(input, 5);
 
                     tasks.mark(index);
                     saveTasks();
                     ui.showMarkedTask(tasks.get(index));
 
                 } else if (input.startsWith("unmark ")) {
-                    int index = Parser.parseTaskNumber(input, 7);
-
-                    if (!tasks.isValidIndex(index)) {
-                        throw new ZsiggyException("That task doesn't exist.");
-                    }
+                    int index = parseExistingTaskIndex(input, 7);
 
                     tasks.unmark(index);
                     saveTasks();
                     ui.showUnmarkedTask(tasks.get(index));
 
                 } else if (input.startsWith("delete ")) {
-                    int index = Parser.parseTaskNumber(input, 7);
-
-                    if (!tasks.isValidIndex(index)) {
-                        throw new ZsiggyException("That task doesn't exist.");
-                    }
+                    int index = parseExistingTaskIndex(input, 7);
 
                     Task deletedTask = tasks.delete(index);
 
@@ -271,11 +259,7 @@ public class Duke {
                 return response.toString();
 
             } else if (input.startsWith("mark ")) {
-                int index = Parser.parseTaskNumber(input, 5);
-
-                if (!tasks.isValidIndex(index)) {
-                    throw new ZsiggyException("That task doesn't exist.");
-                }
+                int index = parseExistingTaskIndex(input, 5);
 
                 tasks.mark(index);
                 saveTasks();
@@ -287,11 +271,7 @@ public class Duke {
                         + tasks.get(index);
 
             } else if (input.startsWith("unmark ")) {
-                int index = Parser.parseTaskNumber(input, 7);
-
-                if (!tasks.isValidIndex(index)) {
-                    throw new ZsiggyException("That task doesn't exist.");
-                }
+                int index = parseExistingTaskIndex(input, 7);
 
                 tasks.unmark(index);
                 saveTasks();
@@ -303,11 +283,7 @@ public class Duke {
                         + tasks.get(index);
 
             } else if (input.startsWith("delete ")) {
-                int index = Parser.parseTaskNumber(input, 7);
-
-                if (!tasks.isValidIndex(index)) {
-                    throw new ZsiggyException("That task doesn't exist.");
-                }
+                int index = parseExistingTaskIndex(input, 7);
 
                 Task deletedTask = tasks.delete(index);
                 saveTasks();
@@ -436,6 +412,22 @@ public class Duke {
         } catch (ZsiggyException e) {
             return "Oi. " + e.getMessage();
         }
+    }
+
+    /**
+     * Parses and validates the task number shared by task update commands.
+     *
+     * @param input The complete user command.
+     * @param commandLength The length of the command prefix.
+     * @return The zero-based index of an existing task.
+     * @throws ZsiggyException If the task number is invalid or does not exist.
+     */
+    private int parseExistingTaskIndex(String input, int commandLength) throws ZsiggyException {
+        int index = Parser.parseTaskNumber(input, commandLength);
+        if (!tasks.isValidIndex(index)) {
+            throw new ZsiggyException("That task doesn't exist.");
+        }
+        return index;
     }
 
     /**
