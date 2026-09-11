@@ -67,18 +67,6 @@ public class MainWindow extends AnchorPane {
     private void handleUserInput() {
         String input = userInput.getText();
 
-        if (input.isBlank()) {
-            String response = duke.getResponse(input);
-
-            dialogContainer.getChildren().addAll(
-                    DialogBox.getUserDialog(input, userImage),
-                    DialogBox.getZsiggyDialog(response, zsiggyImage)
-            );
-
-            userInput.clear();
-            return;
-        }
-
         String response = duke.getResponse(input);
 
         dialogContainer.getChildren().addAll(
