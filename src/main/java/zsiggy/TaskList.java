@@ -1,5 +1,7 @@
 package zsiggy;
 
+import java.util.Arrays;
+
 import zsiggy.task.Task;
 
 /**
@@ -120,22 +122,8 @@ public class TaskList {
      * @return An array containing the matching tasks.
      */
     public Task[] find(String keyword) {
-        Task[] matches = new Task[100];
-        int matchCount = 0;
-
-        for (int i = 0; i < taskCount; i++) {
-            if (tasks[i].getDescription().contains(keyword)) {
-                matches[matchCount] = tasks[i];
-                matchCount++;
-            }
-        }
-
-        Task[] result = new Task[matchCount];
-
-        for (int i = 0; i < matchCount; i++) {
-            result[i] = matches[i];
-        }
-
-        return result;
+        return Arrays.stream(tasks, 0, taskCount)
+                .filter(task -> task.getDescription().contains(keyword))
+                .toArray(Task[]::new);
     }
 }
