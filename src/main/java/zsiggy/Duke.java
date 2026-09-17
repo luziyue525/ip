@@ -63,14 +63,14 @@ public class Duke {
 
                 } else if (input.equals("find")) {
                     throw new ZsiggyException(
-                            "A find command needs a keyword."
+                            "You want me to find... what exactly? Give me a keyword."
                     );
                 } else if (input.startsWith("find ")) {
                     String keyword = input.substring(5);
 
                     if (keyword.isBlank()) {
                         throw new ZsiggyException(
-                                "A find command needs a keyword."
+                                "You want me to find... what exactly? Give me a keyword."
                         );
                     }
 
@@ -99,7 +99,7 @@ public class Duke {
                     ui.showDeletedTask(deletedTask, tasks.getTaskCount());
 
                 } else if (input.equals("todo") || input.equals("t")) {
-                    throw new ZsiggyException("A todo needs a description.");
+                    throw new ZsiggyException("A todo needs an actual description. I can't organise invisible tasks.");
 
                 } else if (input.startsWith("todo ") || input.startsWith("t ")) {
                     String description;
@@ -111,7 +111,8 @@ public class Duke {
                     }
 
                     if (description.isBlank()) {
-                        throw new ZsiggyException("A todo needs a description.");
+                        throw new ZsiggyException(
+                                "A todo needs an actual description. I can't organise invisible tasks.");
                     }
 
                     Task task = new Todo(description);
@@ -122,7 +123,8 @@ public class Duke {
 
                 } else if (input.equals("deadline")) {
                     throw new ZsiggyException(
-                            "Use: deadline DESCRIPTION /by TIME"
+                            "That's not much of a deadline. "
+                                    + "Use: deadline DESCRIPTION /by YYYY-MM-DD"
                     );
 
                 } else if (input.startsWith("deadline ")) {
@@ -130,7 +132,8 @@ public class Duke {
 
                     if (!content.contains(" /by ")) {
                         throw new ZsiggyException(
-                                "Use: deadline DESCRIPTION /by TIME"
+                                "That's not much of a deadline. "
+                                        + "Use: deadline DESCRIPTION /by YYYY-MM-DD"
                         );
                     }
 
@@ -153,7 +156,7 @@ public class Duke {
 
                 } else if (input.equals("event")) {
                     throw new ZsiggyException(
-                            "Use: event DESCRIPTION /from START /to END"
+                            "Give me the whole event. Use: event DESCRIPTION /from YYYY-MM-DD /to YYYY-MM-DD"
                     );
 
                 } else if (input.startsWith("event ")) {
@@ -161,7 +164,7 @@ public class Duke {
 
                     if (!content.contains(" /from ") || !content.contains(" /to ")) {
                         throw new ZsiggyException(
-                                "Use: event DESCRIPTION /from START /to END"
+                                "Give me the whole event. Use: event DESCRIPTION /from YYYY-MM-DD /to YYYY-MM-DD"
                         );
                     }
 
@@ -174,7 +177,8 @@ public class Duke {
 
                     if (description.isBlank() || fromDate.isBlank() || toDate.isBlank()) {
                         throw new ZsiggyException(
-                                "An event needs a description, start, and end."
+                                "You can't just show up to nowhere, never. "
+                                        + "An event needs a description, start, and end."
                         );
                     }
 
@@ -191,7 +195,7 @@ public class Duke {
                 }
 
             } catch (ZsiggyException e) {
-                ui.showError(e.getMessage());
+                ui.showError("Oi. " + e.getMessage());
             }
         }
 
@@ -231,7 +235,7 @@ public class Duke {
 
             } else if (input.equals("find")) {
                 throw new ZsiggyException(
-                        "A find command needs a keyword."
+                        "You want me to find... what exactly? Give me a keyword."
                 );
 
             } else if (input.startsWith("find ")) {
@@ -239,7 +243,7 @@ public class Duke {
 
                 if (keyword.isBlank()) {
                     throw new ZsiggyException(
-                            "A find command needs a keyword."
+                            "You want me to find... what exactly? Give me a keyword."
                     );
                 }
 
@@ -298,7 +302,7 @@ public class Duke {
 
             } else if (input.equals("todo") || input.equals("t")) {
                 throw new ZsiggyException(
-                        "A todo needs a description."
+                        "A todo needs an actual description. I can't organise invisible tasks."
                 );
 
             } else if (input.startsWith("todo ") || input.startsWith("t ")) {
@@ -312,7 +316,7 @@ public class Duke {
 
                 if (description.isBlank()) {
                     throw new ZsiggyException(
-                            "A todo needs a description."
+                            "A todo needs an actual description. I can't organise invisible tasks."
                     );
                 }
 
@@ -327,7 +331,8 @@ public class Duke {
 
             } else if (input.equals("deadline")) {
                 throw new ZsiggyException(
-                        "Use: deadline DESCRIPTION /by TIME"
+                        "That's not much of a deadline. "
+                                + "Use: deadline DESCRIPTION /by YYYY-MM-DD"
                 );
 
             } else if (input.startsWith("deadline ")) {
@@ -335,7 +340,8 @@ public class Duke {
 
                 if (!content.contains(" /by ")) {
                     throw new ZsiggyException(
-                            "Use: deadline DESCRIPTION /by TIME"
+                            "That's not much of a deadline. "
+                                    + "Use: deadline DESCRIPTION /by YYYY-MM-DD"
                     );
                 }
 
@@ -361,7 +367,7 @@ public class Duke {
 
             } else if (input.equals("event")) {
                 throw new ZsiggyException(
-                        "Use: event DESCRIPTION /from START /to END"
+                        "Give me the whole event. Use: event DESCRIPTION /from YYYY-MM-DD /to YYYY-MM-DD"
                 );
 
             } else if (input.startsWith("event ")) {
@@ -370,7 +376,7 @@ public class Duke {
                 if (!content.contains(" /from ")
                         || !content.contains(" /to ")) {
                     throw new ZsiggyException(
-                            "Use: event DESCRIPTION /from START /to END"
+                            "Give me the whole event. Use: event DESCRIPTION /from YYYY-MM-DD /to YYYY-MM-DD"
                     );
                 }
 
@@ -386,7 +392,8 @@ public class Duke {
                         || fromDate.isBlank()
                         || toDate.isBlank()) {
                     throw new ZsiggyException(
-                            "An event needs a description, start, and end."
+                            "You can't just show up to nowhere, never. "
+                                    + "An event needs a description, start, and end."
                     );
                 }
 

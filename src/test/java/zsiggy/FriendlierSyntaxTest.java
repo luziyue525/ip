@@ -24,7 +24,9 @@ public class FriendlierSyntaxTest {
         String response = runCli("t read book\ntodo buy milk\nt\nt   \ntask invalid\nlist\nbye\n");
         assertTrue(response.contains("1. [T][ ]read book"));
         assertTrue(response.contains("2. [T][ ]buy milk"));
-        assertTrue(response.contains("A todo needs a description."));
+        assertTrue(response.contains(
+                "A todo needs an actual description. I can't organise invisible tasks."
+        ));
         assertTrue(response.contains("That's not a command I understand."));
         assertFalse(response.contains("3. [T]"));
         assertEquals("T | 0 | read book" + System.lineSeparator()
@@ -39,7 +41,11 @@ public class FriendlierSyntaxTest {
     public void getResponse_emptyAliases_returnsSameValidation() {
         Duke duke = new Duke();
         for (String input : new String[]{"t", "t   ", "todo", "todo   "}) {
-            assertEquals("Oi. A todo needs a description.", duke.getResponse(input));
+            assertEquals(
+                    "Oi. A todo needs an actual description. "
+                            + "I can't organise invisible tasks.",
+                    duke.getResponse(input)
+            );
         }
     }
 
