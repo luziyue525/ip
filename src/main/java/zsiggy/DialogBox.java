@@ -19,6 +19,18 @@ import javafx.scene.layout.HBox;
  */
 public class DialogBox extends HBox {
 
+    private static final String USER_DIALOG_STYLE =
+            "-fx-background-color: #DCEEFF;"
+                    + "-fx-background-radius: 12;"
+                    + "-fx-padding: 8 12 8 12;"
+                    + "-fx-font-size: 14px;";
+
+    private static final String ZSIGGY_DIALOG_STYLE =
+            "-fx-background-color: #E3EDE4;"
+                    + "-fx-background-radius: 12;"
+                    + "-fx-padding: 8 12 8 12;"
+                    + "-fx-font-size: 14px;";
+
     @FXML
     private Label dialog;
 
@@ -44,6 +56,7 @@ public class DialogBox extends HBox {
         }
 
         dialog.setText(text);
+        dialog.setStyle(USER_DIALOG_STYLE);
         displayPicture.setImage(image);
     }
 
@@ -56,7 +69,8 @@ public class DialogBox extends HBox {
 
         Collections.reverse(nodes);
         getChildren().setAll(nodes);
-        setAlignment(Pos.TOP_LEFT);
+        setAlignment(Pos.CENTER_LEFT);
+        dialog.setStyle(ZSIGGY_DIALOG_STYLE);
     }
 
     /**
