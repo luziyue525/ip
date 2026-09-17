@@ -23,12 +23,12 @@ public class Event extends Task {
 
         this.fromDate = LocalDate.parse(
                 fromDate,
-                DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH)
+                DateTimeFormatter.ISO_LOCAL_DATE
         );
 
         this.toDate = LocalDate.parse(
                 toDate,
-                DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH)
+                DateTimeFormatter.ISO_LOCAL_DATE
         );
     }
 

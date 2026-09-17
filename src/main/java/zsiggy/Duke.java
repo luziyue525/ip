@@ -2,6 +2,8 @@ package zsiggy;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 import zsiggy.task.Deadline;
 import zsiggy.task.Event;
@@ -182,6 +184,8 @@ public class Duke {
                         );
                     }
 
+                    validateEventDateOrder(fromDate, toDate);
+
                     Task task = new Event(description, fromDate, toDate);
 
                     tasks.add(task);
@@ -194,6 +198,10 @@ public class Duke {
                     );
                 }
 
+            } catch (DateTimeParseException e) {
+                ui.showError(
+                        "Oi. That's not a real date. Use YYYY-MM-DD."
+                );
             } catch (ZsiggyException e) {
                 ui.showError("Oi. " + e.getMessage());
             }
@@ -397,6 +405,8 @@ public class Duke {
                     );
                 }
 
+                validateEventDateOrder(fromDate, toDate);
+
                 Task task = new Event(
                         description,
                         fromDate,
@@ -415,9 +425,30 @@ public class Duke {
                         "That's not a command I understand."
                 );
             }
+        } catch (DateTimeParseException e) {
+            return "Oi. That's not a real date. Use YYYY-MM-DD.";
 
         } catch (ZsiggyException e) {
             return "Oi. " + e.getMessage();
+        }
+    }
+
+    /**
+     * Validates that an event does not end before it starts.
+     *
+     * @param fromDate The event start date.
+     * @param toDate The event end date.
+     * @throws ZsiggyException If the end date is before the start date.
+     */
+    private void validateEventDateOrder(String fromDate, String toDate)
+            throws ZsiggyException {
+        LocalDate startDate = LocalDate.parse(fromDate);
+        LocalDate endDate = LocalDate.parse(toDate);
+
+        if (endDate.isBefore(startDate)) {
+            throw new ZsiggyException(
+                    "Time travel again? The event can't end before it starts."
+            );
         }
     }
 

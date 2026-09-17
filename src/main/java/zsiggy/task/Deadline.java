@@ -21,7 +21,7 @@ public class Deadline extends Task {
 
         this.deadline = LocalDate.parse(
                 deadline,
-                DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH)
+                DateTimeFormatter.ISO_LOCAL_DATE
         );
     }
 
