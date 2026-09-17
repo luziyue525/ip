@@ -2,8 +2,8 @@
 
 Use a fresh working directory to avoid changing existing saved tasks.
 Build with Java 25: `./gradlew check shadowJar` (Windows: `gradlew.bat`).
-Launch the GUI with `java -jar build/libs/duke.jar`, or the CLI with
-`java -ea -cp build/libs/duke.jar zsiggy.Duke`.
+Launch the GUI with `java -jar build/libs/zsiggy.jar`, or the CLI with
+`java -ea -cp build/libs/zsiggy.jar zsiggy.Duke`.
 
 | Input / action | Expected result |
 | --- | --- |
