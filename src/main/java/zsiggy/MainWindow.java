@@ -1,5 +1,6 @@
 package zsiggy;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
@@ -58,6 +59,10 @@ public class MainWindow extends AnchorPane {
                         zsiggyImage
                 )
         );
+        if (!duke.getStartupWarning().isEmpty()) {
+            dialogContainer.getChildren().add(
+                    DialogBox.getZsiggyDialog("Oi. " + duke.getStartupWarning(), zsiggyImage));
+        }
     }
 
     /**
@@ -66,6 +71,10 @@ public class MainWindow extends AnchorPane {
     @FXML
     private void handleUserInput() {
         String input = userInput.getText();
+        if (input.isBlank()) {
+            userInput.clear();
+            return;
+        }
 
         String response = duke.getResponse(input);
 
@@ -75,5 +84,8 @@ public class MainWindow extends AnchorPane {
         );
 
         userInput.clear();
+        if (input.strip().equals("bye")) {
+            Platform.exit();
+        }
     }
 }

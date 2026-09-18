@@ -56,6 +56,7 @@ public class DialogBox extends HBox {
         }
 
         dialog.setText(text);
+        dialog.maxWidthProperty().bind(widthProperty().subtract(80));
         dialog.setStyle(USER_DIALOG_STYLE);
         displayPicture.setImage(image);
     }
@@ -94,6 +95,9 @@ public class DialogBox extends HBox {
     public static DialogBox getZsiggyDialog(String text, Image image) {
         DialogBox dialogBox = new DialogBox(text, image);
         dialogBox.flip();
+        if (text.startsWith("Oi.")) {
+            dialogBox.dialog.setStyle(ZSIGGY_DIALOG_STYLE + "-fx-background-color: #FFE0DC;");
+        }
         return dialogBox;
     }
 }
