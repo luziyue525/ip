@@ -18,9 +18,17 @@ repositories {
     mavenCentral()
 }
 
+configurations {
+    macIntelNatives
+    macArmNatives
+}
+
 dependencies {
     String jUnitVersion = '5.14.4'
     String javaFxVersion = '17.0.7'
+
+    macIntelNatives("org.openjfx:javafx-graphics:${javaFxVersion}:mac") { transitive = false }
+    macArmNatives("org.openjfx:javafx-graphics:${javaFxVersion}:mac-aarch64") { transitive = false }
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:${jUnitVersion}"
 
@@ -71,6 +79,21 @@ jar {
 
 shadowJar {
     archiveFileName = 'zsiggy.jar'
+    // JavaFX uses identical native filenames for both Mac architectures.
+    // Keep them separate; Launcher selects and extracts the matching directory.
+    eachFile { entry ->
+        if (entry.path.endsWith('.dylib') && !entry.path.startsWith('natives/')) {
+            entry.exclude()
+        }
+    }
+    from({ project.configurations.macIntelNatives.collect { zipTree(it) } }) {
+        include '*.dylib'
+        into 'natives/mac'
+    }
+    from({ project.configurations.macArmNatives.collect { zipTree(it) } }) {
+        include '*.dylib'
+        into 'natives/mac-aarch64'
+    }
 }
 
 run {
