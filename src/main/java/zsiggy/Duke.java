@@ -1,503 +1,251 @@
 package zsiggy;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import zsiggy.task.Deadline;
 import zsiggy.task.Event;
 import zsiggy.task.Task;
 import zsiggy.task.Todo;
 
-
 /**
- * Main class of the Zsiggy chatbot.
- *
- * Coordinates user interaction, task management, command handling,
- * and persistent storage.
+ * Coordinates Zsiggy's commands, task list, and persistent storage for both interfaces.
  */
 public class Duke {
+    private static final Pattern EVENT_FORMAT = Pattern.compile("(.+) /from (\\S+) /to (\\S+)");
     private final Ui ui;
     private final Storage storage;
     private TaskList tasks;
+    private String startupWarning = "";
 
-    /**
-     * Creates a new Duke instance with its user interface,
-     * storage system, and task list.
-     */
     public Duke() {
-        this.ui = new Ui();
-        this.storage = new Storage("data/tasks.txt");
-        this.tasks = new TaskList();
+        this("data/tasks.txt");
     }
 
     /**
-     * Starts Zsiggy and continuously processes user commands
-     * until the user exits the application.
+     * Creates a chatbot with an explicit storage location for isolated sessions.
+     */
+    public Duke(String filePath) {
+        ui = new Ui();
+        storage = new Storage(filePath);
+        tasks = new TaskList();
+    }
+
+    /**
+     * Runs the console interface using the same command handling as the GUI.
      */
     public void run() {
+        loadTasks();
         ui.showWelcome();
-
-        try {
-            storage.createDataFile();
-            tasks = storage.load();
-        } catch (FileNotFoundException e) {
-            ui.showError("Couldn't load your saved tasks.");
-        } catch (IOException e) {
-            ui.showError("Couldn't create the save file.");
+        if (!startupWarning.isEmpty()) {
+            ui.showError(startupWarning);
         }
-
-        while (true) {
+        while (ui.hasNextCommand()) {
             String input = ui.readCommand();
-
-            try {
-                if (input.isBlank()) {
-                    throw new ZsiggyException(
-                            "...Saying nothing won't make your work disappear. Give me a command."
-                    );
-
-                } else if (input.equals("bye")) {
-                    break;
-
-                } else if (input.equals("list")) {
-                    ui.showTaskList(tasks.getTasks(), tasks.getTaskCount());
-
-                } else if (input.equals("find")) {
-                    throw new ZsiggyException(
-                            "You want me to find... what exactly? Give me a keyword."
-                    );
-                } else if (input.startsWith("find ")) {
-                    String keyword = input.substring(5);
-
-                    if (keyword.isBlank()) {
-                        throw new ZsiggyException(
-                                "You want me to find... what exactly? Give me a keyword."
-                        );
-                    }
-
-                    Task[] matches = tasks.find(keyword);
-                    ui.showFoundTasks(matches);
-                } else if (input.startsWith("mark ")) {
-                    int index = parseExistingTaskIndex(input, 5);
-
-                    tasks.mark(index);
-                    saveTasks();
-                    ui.showMarkedTask(tasks.get(index));
-
-                } else if (input.startsWith("unmark ")) {
-                    int index = parseExistingTaskIndex(input, 7);
-
-                    tasks.unmark(index);
-                    saveTasks();
-                    ui.showUnmarkedTask(tasks.get(index));
-
-                } else if (input.startsWith("delete ")) {
-                    int index = parseExistingTaskIndex(input, 7);
-
-                    Task deletedTask = tasks.delete(index);
-
-                    saveTasks();
-                    ui.showDeletedTask(deletedTask, tasks.getTaskCount());
-
-                } else if (input.equals("todo") || input.equals("t")) {
-                    throw new ZsiggyException("A todo needs an actual description. I can't organise invisible tasks.");
-
-                } else if (input.startsWith("todo ") || input.startsWith("t ")) {
-                    String description;
-
-                    if (input.startsWith("t ")) {
-                        description = input.substring(2);
-                    } else {
-                        description = input.substring(5);
-                    }
-
-                    if (description.isBlank()) {
-                        throw new ZsiggyException(
-                                "A todo needs an actual description. I can't organise invisible tasks.");
-                    }
-
-                    Task task = new Todo(description);
-
-                    tasks.add(task);
-                    saveTasks();
-                    ui.showTodoAdded(task);
-
-                } else if (input.equals("deadline")) {
-                    throw new ZsiggyException(
-                            "That's not much of a deadline. "
-                                    + "Use: deadline DESCRIPTION /by YYYY-MM-DD"
-                    );
-
-                } else if (input.startsWith("deadline ")) {
-                    String content = input.substring(9);
-
-                    if (!content.contains(" /by ")) {
-                        throw new ZsiggyException(
-                                "That's not much of a deadline. "
-                                        + "Use: deadline DESCRIPTION /by YYYY-MM-DD"
-                        );
-                    }
-
-                    String[] parts = content.split(" /by ", 2);
-
-                    String description = parts[0];
-                    String deadline = parts[1];
-
-                    if (description.isBlank() || deadline.isBlank()) {
-                        throw new ZsiggyException(
-                                "A deadline needs both a task and a deadline."
-                        );
-                    }
-
-                    Task task = new Deadline(description, deadline);
-
-                    tasks.add(task);
-                    saveTasks();
-                    ui.showDeadlineAdded(task);
-
-                } else if (input.equals("event")) {
-                    throw new ZsiggyException(
-                            "Give me the whole event. Use: event DESCRIPTION /from YYYY-MM-DD /to YYYY-MM-DD"
-                    );
-
-                } else if (input.startsWith("event ")) {
-                    String content = input.substring(6);
-
-                    if (!content.contains(" /from ") || !content.contains(" /to ")) {
-                        throw new ZsiggyException(
-                                "Give me the whole event. Use: event DESCRIPTION /from YYYY-MM-DD /to YYYY-MM-DD"
-                        );
-                    }
-
-                    String[] fromParts = content.split(" /from ", 2);
-                    String description = fromParts[0];
-
-                    String[] timeParts = fromParts[1].split(" /to ", 2);
-                    String fromDate = timeParts[0];
-                    String toDate = timeParts[1];
-
-                    if (description.isBlank() || fromDate.isBlank() || toDate.isBlank()) {
-                        throw new ZsiggyException(
-                                "You can't just show up to nowhere, never. "
-                                        + "An event needs a description, start, and end."
-                        );
-                    }
-
-                    validateEventDateOrder(fromDate, toDate);
-
-                    Task task = new Event(description, fromDate, toDate);
-
-                    tasks.add(task);
-                    saveTasks();
-                    ui.showEventAdded(task);
-
-                } else {
-                    throw new ZsiggyException(
-                            "That's not a command I understand."
-                    );
-                }
-
-            } catch (DateTimeParseException e) {
-                ui.showError(
-                        "Oi. That's not a real date. Use YYYY-MM-DD."
-                );
-            } catch (ZsiggyException e) {
-                ui.showError("Oi. " + e.getMessage());
+            System.out.println(getResponse(input));
+            if (input.strip().equals("bye")) {
+                break;
             }
         }
-
         ui.close();
-        ui.showExit();
     }
 
     /**
-     * Processes a user command and returns Zsiggy's response.
+     * Handles a command, returning user-facing errors and rolling back failed saves.
      *
      * @param input The command entered by the user.
-     * @return Zsiggy's response to the command.
+     * @return Zsiggy's response.
      */
     public String getResponse(String input) {
+        TaskList previousTasks = tasks.copy();
         try {
-            if (input.isBlank()) {
-                throw new ZsiggyException(
-                        "...Saying nothing won't make your work disappear. Give me a command."
-                );
-
-            } else if (input.equals("bye")) {
-                return "Hmph. Bye. Go drink your green milk tea.";
-
-            } else if (input.equals("list")) {
-                StringBuilder response = new StringBuilder(
-                        "Fine. Here's what you've dumped on me:"
-                );
-
-                for (int i = 0; i < tasks.getTaskCount(); i++) {
-                    response.append(System.lineSeparator())
-                            .append(i + 1)
-                            .append(". ")
-                            .append(tasks.get(i));
-                }
-
-                return response.toString();
-
-            } else if (input.equals("find")) {
-                throw new ZsiggyException(
-                        "You want me to find... what exactly? Give me a keyword."
-                );
-
-            } else if (input.startsWith("find ")) {
-                String keyword = input.substring(5);
-
-                if (keyword.isBlank()) {
-                    throw new ZsiggyException(
-                            "You want me to find... what exactly? Give me a keyword."
-                    );
-                }
-
-                Task[] matches = tasks.find(keyword);
-
-                StringBuilder response = new StringBuilder(
-                        "Fine. Here are the matching tasks:"
-                );
-
-                for (int i = 0; i < matches.length; i++) {
-                    response.append(System.lineSeparator())
-                            .append(i + 1)
-                            .append(". ")
-                            .append(matches[i]);
-                }
-
-                return response.toString();
-
-            } else if (input.startsWith("mark ")) {
-                int index = parseExistingTaskIndex(input, 5);
-
-                tasks.mark(index);
-                saveTasks();
-
-                return "Wait, you actually finished something? Wonders never cease."
-                        + System.lineSeparator()
-                        + "Marked this one done:"
-                        + System.lineSeparator()
-                        + tasks.get(index);
-
-            } else if (input.startsWith("unmark ")) {
-                int index = parseExistingTaskIndex(input, 7);
-
-                tasks.unmark(index);
-                saveTasks();
-
-                return "Caught you faking it, huh?"
-                        + System.lineSeparator()
-                        + "Whatever, it's unmarked now:"
-                        + System.lineSeparator()
-                        + tasks.get(index);
-
-            } else if (input.startsWith("delete ")) {
-                int index = parseExistingTaskIndex(input, 7);
-
-                Task deletedTask = tasks.delete(index);
-                saveTasks();
-
-                return "Finally, one less thing cluttering your life:"
-                        + System.lineSeparator()
-                        + deletedTask
-                        + System.lineSeparator()
-                        + "Now you've got "
-                        + tasks.getTaskCount()
-                        + " task(s) left.";
-
-            } else if (input.equals("todo") || input.equals("t")) {
-                throw new ZsiggyException(
-                        "A todo needs an actual description. I can't organise invisible tasks."
-                );
-
-            } else if (input.startsWith("todo ") || input.startsWith("t ")) {
-                String description;
-
-                if (input.startsWith("t ")) {
-                    description = input.substring(2);
-                } else {
-                    description = input.substring(5);
-                }
-
-                if (description.isBlank()) {
-                    throw new ZsiggyException(
-                            "A todo needs an actual description. I can't organise invisible tasks."
-                    );
-                }
-
-                Task task = new Todo(description);
-
-                tasks.add(task);
-                saveTasks();
-
-                return "Got it. Added to your never-ending pile:"
-                        + System.lineSeparator()
-                        + task;
-
-            } else if (input.equals("deadline")) {
-                throw new ZsiggyException(
-                        "That's not much of a deadline. "
-                                + "Use: deadline DESCRIPTION /by YYYY-MM-DD"
-                );
-
-            } else if (input.startsWith("deadline ")) {
-                String content = input.substring(9);
-
-                if (!content.contains(" /by ")) {
-                    throw new ZsiggyException(
-                            "That's not much of a deadline. "
-                                    + "Use: deadline DESCRIPTION /by YYYY-MM-DD"
-                    );
-                }
-
-                String[] parts = content.split(" /by ", 2);
-
-                String description = parts[0];
-                String deadline = parts[1];
-
-                if (description.isBlank() || deadline.isBlank()) {
-                    throw new ZsiggyException(
-                            "A deadline needs both a task and a deadline."
-                    );
-                }
-
-                Task task = new Deadline(description, deadline);
-
-                tasks.add(task);
-                saveTasks();
-
-                return "Tick-tock. Added this ticking time bomb:"
-                        + System.lineSeparator()
-                        + task;
-
-            } else if (input.equals("event")) {
-                throw new ZsiggyException(
-                        "Give me the whole event. Use: event DESCRIPTION /from YYYY-MM-DD /to YYYY-MM-DD"
-                );
-
-            } else if (input.startsWith("event ")) {
-                String content = input.substring(6);
-
-                if (!content.contains(" /from ")
-                        || !content.contains(" /to ")) {
-                    throw new ZsiggyException(
-                            "Give me the whole event. Use: event DESCRIPTION /from YYYY-MM-DD /to YYYY-MM-DD"
-                    );
-                }
-
-                String[] fromParts = content.split(" /from ", 2);
-                String description = fromParts[0];
-
-                String[] timeParts = fromParts[1].split(" /to ", 2);
-
-                String fromDate = timeParts[0];
-                String toDate = timeParts[1];
-
-                if (description.isBlank()
-                        || fromDate.isBlank()
-                        || toDate.isBlank()) {
-                    throw new ZsiggyException(
-                            "You can't just show up to nowhere, never. "
-                                    + "An event needs a description, start, and end."
-                    );
-                }
-
-                validateEventDateOrder(fromDate, toDate);
-
-                Task task = new Event(
-                        description,
-                        fromDate,
-                        toDate
-                );
-
-                tasks.add(task);
-                saveTasks();
-
-                return "Locked it into your schedule:"
-                        + System.lineSeparator()
-                        + task;
-
-            } else {
-                throw new ZsiggyException(
-                        "That's not a command I understand."
-                );
-            }
+            String command = normalize(input);
+            return execute(command);
         } catch (DateTimeParseException e) {
             return "Oi. That's not a real date. Use YYYY-MM-DD.";
-
         } catch (ZsiggyException e) {
             return "Oi. " + e.getMessage();
+        } catch (IOException e) {
+            tasks = previousTasks;
+            return "Oi. Couldn't save your tasks. No changes were kept. Check data/tasks.txt and folder permissions.";
         }
     }
 
     /**
-     * Validates that an event does not end before it starts.
-     *
-     * @param fromDate The event start date.
-     * @param toDate The event end date.
-     * @throws ZsiggyException If the end date is before the start date.
+     * Normalizes spaces while rejecting characters that cannot be stored safely.
      */
-    private void validateEventDateOrder(String fromDate, String toDate)
-            throws ZsiggyException {
-        LocalDate startDate = LocalDate.parse(fromDate);
-        LocalDate endDate = LocalDate.parse(toDate);
+    private String normalize(String input) throws ZsiggyException {
+        if (input == null || input.isBlank()) {
+            throw new ZsiggyException("...Saying nothing won't make your work disappear. Give me a command.");
+        }
+        if (input.contains("|") || input.contains("\n") || input.contains("\r")) {
+            throw new ZsiggyException("Keep commands on one line and leave out the | character.");
+        }
+        return input.strip().replaceAll("[\t ]+", " ");
+    }
 
-        if (endDate.isBefore(startDate)) {
-            throw new ZsiggyException(
-                    "Time travel again? The event can't end before it starts."
-            );
+    /**
+     * Dispatches the command to the appropriate feature.
+     */
+    private String execute(String input) throws ZsiggyException, IOException {
+        String[] parts = input.split(" ", 2);
+        String argument = parts.length == 2 ? parts[1] : "";
+        switch (parts[0]) {
+            case "bye":
+                requireNoArgument(argument);
+                return "Hmph. Bye. Go drink your green milk tea.";
+            case "list":
+                requireNoArgument(argument);
+                return listTasks("");
+            case "find":
+                if (argument.isEmpty()) {
+                    throw new ZsiggyException("You want me to find... what exactly? Give me a keyword.");
+                }
+                return listTasks(argument);
+            case "mark":
+            case "unmark":
+            case "delete":
+                return updateTask(parts[0], argument);
+            case "todo":
+            case "t":
+                return addTask(createTodo(argument), "Got it. Added to your never-ending pile:");
+            case "deadline":
+                return addTask(createDeadline(argument), "Tick-tock. Added this ticking time bomb:");
+            case "event":
+                return addTask(createEvent(argument), "Locked it into your schedule:");
+            default:
+                throw new ZsiggyException("That's not a command I understand.");
+        }
+    }
+
+    private void requireNoArgument(String argument) throws ZsiggyException {
+        if (!argument.isEmpty()) {
+            throw new ZsiggyException("This command doesn't take extra arguments.");
         }
     }
 
     /**
-     * Parses and validates the task number shared by task update commands.
-     *
-     * @param input The complete user command.
-     * @param commandLength The length of the command prefix.
-     * @return The zero-based index of an existing task.
-     * @throws ZsiggyException If the task number is invalid or does not exist.
+     * Lists matches using stable full-list indices for subsequent update commands.
      */
-    private int parseExistingTaskIndex(String input, int commandLength) throws ZsiggyException {
-        int index = Parser.parseTaskNumber(input, commandLength);
+    private String listTasks(String keyword) {
+        StringBuilder response = new StringBuilder(keyword.isEmpty()
+                ? "Fine. Here's what you've dumped on me:" : "Fine. Here are the matching tasks:");
+        for (int i = 0; i < tasks.getTaskCount(); i++) {
+            if (tasks.get(i).getDescription().contains(keyword)) {
+                response.append(System.lineSeparator()).append(i + 1).append(". ").append(tasks.get(i));
+            }
+        }
+        return response.toString();
+    }
+
+    /**
+     * Validates an index, applies the requested change, then persists it.
+     */
+    private String updateTask(String command, String argument) throws ZsiggyException, IOException {
+        int index = Parser.parseTaskNumber(argument, 0);
         if (!tasks.isValidIndex(index)) {
             throw new ZsiggyException("That task doesn't exist.");
         }
-        return index;
-    }
-
-    /**
-     * Saves the current task list to persistent storage.
-     */
-    private void saveTasks() {
-        try {
-            storage.save(tasks);
-        } catch (IOException e) {
-            ui.showError("Couldn't save your tasks.");
+        Task task = tasks.get(index);
+        String response;
+        if (command.equals("mark")) {
+            tasks.mark(index);
+            response = "Wait, you actually finished something? Wonders never cease."
+                    + System.lineSeparator() + "Marked this one done:" + System.lineSeparator() + task;
+        } else if (command.equals("unmark")) {
+            tasks.unmark(index);
+            response = "Caught you faking it, huh?" + System.lineSeparator()
+                    + "Whatever, it's unmarked now:" + System.lineSeparator() + task;
+        } else {
+            tasks.delete(index);
+            response = "Finally, one less thing cluttering your life:" + System.lineSeparator() + task
+                    + System.lineSeparator() + "Now you've got " + tasks.getTaskCount() + " task(s) left.";
         }
+        saveTasks();
+        return response;
+    }
+
+    private Task createTodo(String description) throws ZsiggyException {
+        if (description.isEmpty()) {
+            throw new ZsiggyException("A todo needs an actual description. I can't organise invisible tasks.");
+        }
+        return new Todo(description);
     }
 
     /**
-     * Loads the saved task data.
+     * Requires exactly one deadline separator and a non-empty description/date.
+     */
+    private Task createDeadline(String argument) throws ZsiggyException {
+        String[] parts = argument.split(" /by ", -1);
+        if (parts.length != 2 || parts[0].isBlank() || parts[1].isBlank()) {
+            throw new ZsiggyException("That's not much of a deadline. Use: deadline DESCRIPTION /by YYYY-MM-DD");
+        }
+        return new Deadline(parts[0], parts[1]);
+    }
+
+    /**
+     * Validates event marker order, dates, and chronology before adding anything.
+     */
+    private Task createEvent(String argument) throws ZsiggyException {
+        Matcher matcher = EVENT_FORMAT.matcher(argument);
+        if (!matcher.matches() || matcher.group(1).contains("/from") || matcher.group(1).contains("/to")) {
+            throw new ZsiggyException("Give me the whole event. "
+                    + "Use: event DESCRIPTION /from YYYY-MM-DD /to YYYY-MM-DD");
+        }
+        LocalDate start = LocalDate.parse(matcher.group(2));
+        LocalDate end = LocalDate.parse(matcher.group(3));
+        if (end.isBefore(start)) {
+            throw new ZsiggyException("Time travel again? The event can't end before it starts.");
+        }
+        return new Event(matcher.group(1), matcher.group(2), matcher.group(3));
+    }
+
+    /**
+     * Rejects duplicates independent of completion state and persists the new task.
+     */
+    private String addTask(Task task, String response) throws ZsiggyException, IOException {
+        Task candidate = task.copy();
+        candidate.unmark();
+        for (int i = 0; i < tasks.getTaskCount(); i++) {
+            Task existing = tasks.get(i).copy();
+            existing.unmark();
+            if (Storage.toRecord(existing).equals(Storage.toRecord(candidate))) {
+                throw new ZsiggyException("That task is already on your list.");
+            }
+        }
+        tasks.add(task);
+        saveTasks();
+        return response + System.lineSeparator() + task;
+    }
+
+    private void saveTasks() throws IOException {
+        if (!startupWarning.isEmpty()) {
+            throw new IOException("Resolve the loading error before saving.");
+        }
+        storage.save(tasks);
+    }
+
+    /**
+     * Loads saved tasks, retaining a visible warning and blocking writes on failure.
      */
     public void loadTasks() {
         try {
-            storage.createDataFile();
             tasks = storage.load();
-        } catch (FileNotFoundException e) {
-            tasks = new TaskList();
+            startupWarning = "";
         } catch (IOException e) {
             tasks = new TaskList();
+            startupWarning = "Couldn't load saved tasks: " + e.getMessage()
+                    + " Fix or restore data/tasks.txt, then restart. Saving is disabled to protect your file.";
         }
     }
 
-    /**
-     * Entry point of the application.
-     *
-     * @param args command-line arguments
-     */
+    public String getStartupWarning() {
+        return startupWarning;
+    }
+
     public static void main(String[] args) {
         new Duke().run();
     }

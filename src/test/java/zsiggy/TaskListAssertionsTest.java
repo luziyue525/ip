@@ -33,7 +33,7 @@ public class TaskListAssertionsTest {
         for (int i = 0; i < 100; i++) {
             tasks.add(new Todo("task " + i));
         }
-        assertThrows(AssertionError.class, () -> tasks.add(new Todo("overflow")));
-        assertEquals(100, tasks.getTaskCount());
+        tasks.add(new Todo("overflow"));
+        assertEquals(101, tasks.getTaskCount());
     }
 }

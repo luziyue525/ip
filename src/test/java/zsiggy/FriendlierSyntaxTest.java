@@ -22,8 +22,8 @@ public class FriendlierSyntaxTest {
     @Test
     public void run_aliasAndOriginalCommand_saveAndReloadTasks() throws Exception {
         String response = runCli("t read book\ntodo buy milk\nt\nt   \ntask invalid\nlist\nbye\n");
-        assertTrue(response.contains("1. [T][ ]read book"));
-        assertTrue(response.contains("2. [T][ ]buy milk"));
+        assertTrue(response.contains("1. [T][ ] read book"));
+        assertTrue(response.contains("2. [T][ ] buy milk"));
         assertTrue(response.contains(
                 "A todo needs an actual description. I can't organise invisible tasks."
         ));
@@ -33,8 +33,8 @@ public class FriendlierSyntaxTest {
                 + "T | 0 | buy milk" + System.lineSeparator(),
                 Files.readString(temporaryDirectory.resolve("data/tasks.txt")));
         String reloaded = runCli("list\nbye\n");
-        assertTrue(reloaded.contains("1. [T][ ]read book"));
-        assertTrue(reloaded.contains("2. [T][ ]buy milk"));
+        assertTrue(reloaded.contains("1. [T][ ] read book"));
+        assertTrue(reloaded.contains("2. [T][ ] buy milk"));
     }
 
     @Test

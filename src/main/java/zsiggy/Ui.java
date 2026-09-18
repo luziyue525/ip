@@ -34,6 +34,10 @@ public class Ui {
         return scanner.nextLine();
     }
 
+    public boolean hasNextCommand() {
+        return scanner.hasNextLine();
+    }
+
     /**
      * Displays all currently stored tasks.
      *

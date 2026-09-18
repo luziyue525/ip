@@ -3,7 +3,7 @@ package zsiggy.task;
 /**
  * Represents a task stored by Zsiggy.
  */
-public class Task {
+public class Task implements Cloneable {
     private String description;
     private boolean isDone;
 
@@ -65,6 +65,17 @@ public class Task {
      */
     @Override
     public String toString() {
-        return "[" + this.getStatusIcon() + "]" + this.description;
+        return "[" + this.getStatusIcon() + "] " + this.description;
+    }
+
+    /**
+     * Copies this task; descriptions and dates are immutable values.
+     */
+    public Task copy() {
+        try {
+            return (Task) clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError(e);
+        }
     }
 }

@@ -8,11 +8,11 @@ import zsiggy.task.Task;
  * Stores and manages the tasks in Zsiggy.
  */
 public class TaskList {
-    private final Task[] tasks;
+    private Task[] tasks;
     private int taskCount;
 
     /**
-     * Creates an empty task list with space for up to 100 tasks.
+     * Creates an empty task list with an initial capacity of 100 tasks.
      */
     public TaskList() {
         this.tasks = new Task[100];
@@ -26,7 +26,9 @@ public class TaskList {
      */
     public void add(Task task) {
         assert task != null : "Task to add should not be null";
-        assert taskCount < tasks.length : "Task list should not be full";
+        if (taskCount == tasks.length) {
+            tasks = Arrays.copyOf(tasks, tasks.length * 2);
+        }
 
         tasks[taskCount] = task;
         taskCount++;
@@ -125,5 +127,16 @@ public class TaskList {
         return Arrays.stream(tasks, 0, taskCount)
                 .filter(task -> task.getDescription().contains(keyword))
                 .toArray(Task[]::new);
+    }
+
+    /**
+     * Copies tasks and completion states so a failed save can be rolled back.
+     */
+    public TaskList copy() {
+        TaskList copy = new TaskList();
+        for (int i = 0; i < taskCount; i++) {
+            copy.add(tasks[i].copy());
+        }
+        return copy;
     }
 }

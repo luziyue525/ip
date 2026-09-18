@@ -10,7 +10,7 @@ public class TaskTest {
     public void toString_unmarkedTask_returnsCorrectString() {
         Task task = new Task("read book");
 
-        assertEquals("[ ]read book", task.toString());
+        assertEquals("[ ] read book", task.toString());
     }
 
     @Test
@@ -19,7 +19,7 @@ public class TaskTest {
 
         task.mark();
 
-        assertEquals("[X]read book", task.toString());
+        assertEquals("[X] read book", task.toString());
     }
 
     @Test
@@ -29,6 +29,6 @@ public class TaskTest {
         task.mark();
         task.unmark();
 
-        assertEquals("[ ]read book", task.toString());
+        assertEquals("[ ] read book", task.toString());
     }
 }
